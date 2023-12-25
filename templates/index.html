@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSocket Chat</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded shadow-md max-w-md w-full">
+      <h1 class="text-2xl font-bold mb-4">
+        WebSocket Chat + Notifications of CRUD operations
+      </h1>
+      <h2>Your ID: <span id="ws-id" class="font-bold"></span></h2>
+
+      <ul id="messages" class="mt-4 space-y-2">
+        <!-- Each message will be a list item with a border and padding -->
+      </ul>
+
+      <form class="flex mt-4" action="" onsubmit="sendMessage(event)">
+        <input
+          class="flex-1 border rounded-l py-2 px-4"
+          type="text"
+          id="messageText"
+          autocomplete="off"
+          placeholder="Type your message"
+        />
+        <button
+          class="bg-blue-500 text-white rounded-r py-2 px-4"
+          type="submit"
+        >
+          Send
+        </button>
+      </form>
+    </div>
+
+    <script>
+      function appendMessage(msg) {
+        let messages = document.getElementById("messages");
+        let message = document.createElement("li");
+        message.textContent = msg;
+        message.className = "border p-2 rounded"; // Add Tailwind classes for styling
+        messages.appendChild(message);
+      }
+
+      let client_id = Math.floor(Math.random() * 1000) + 1;
+      document.querySelector("#ws-id").textContent = client_id;
+      let ws = new WebSocket(
+        `{{ ws_protocol }}://{{ server_urn }}/ws/${client_id}`
+      );
+
+      ws.onmessage = function (event) {
+        appendMessage(event.data);
+      };
+
+      function sendMessage(event) {
+        let input = document.getElementById("messageText");
+        ws.send(input.value);
+        input.value = "";
+        event.preventDefault();
+      }
+    </script>
+  </body>
+</html>
